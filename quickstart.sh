@@ -226,4 +226,7 @@ case ${MACHINE_TYPE} in
 esac
 
 # Use the ADOP CLI
+eval $(docker-machine env ${MACHINE_NAME})
+./adop certbot gen-certs "registry.$(docker-machine ip ${MACHINE_NAME}).nip.io" registry
 ./adop compose -m "${MACHINE_NAME}" ${CLI_COMPOSE_OPTS} init
+./adop certbot export-certs "registry.$(docker-machine ip ${MACHINE_NAME}).nip.io" registry
