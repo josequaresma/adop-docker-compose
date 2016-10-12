@@ -78,28 +78,22 @@
     },
     "RegionMap": {
       "eu-central-1": {
-        "CENTOSAMI": "ami-9bf712f4",
-        "NATAMI": "ami-ae380eb3"
+        "CENTOSAMI": "ami-9bf712f4"
       },
       "eu-west-1": {
-        "CENTOSAMI": "ami-7abd0209",
-        "NATAMI": "ami-14913f63"
+        "CENTOSAMI": "ami-7abd0209"
       },
       "us-east-1": {
-        "CENTOSAMI": "ami-6d1c2007",
-        "NATAMI": "ami-184dc970"
+        "CENTOSAMI": "ami-6d1c2007"
       },
       "us-west-2": {
-        "CENTOSAMI": "ami-d2c924b2",
-        "NATAMI": "ami-290f4119"
+        "CENTOSAMI": "ami-d2c924b2"
       },
       "us-west-1": {
-        "CENTOSAMI": "ami-af4333cf",
-        "NATAMI": "ami-a98396ec"
+        "CENTOSAMI": "ami-af4333cf"
       },
       "ap-southeast-2": {
-        "CENTOSAMI": "ami-fedafc9d",
-        "NATAMI": "ami-893f53b3"
+        "CENTOSAMI": "ami-fedafc9d"
       }
     }
   },
@@ -122,26 +116,6 @@
       ],
       "ConstraintDescription": "Must be a valid EC2 HVM instance type.",
       "Default": "t2.medium"
-    },
-    "NATInstanceType": {
-      "Type": "String",
-      "Description": "NAT EC2 HVM instance type (t2.small, m3.medium, etc).",
-      "AllowedValues": [
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "m4.large",
-        "m4.xlarge",
-        "m4.2xlarge",
-        "m4.4xlarge",
-        "m4.10xlarge",
-        "m3.medium",
-        "m3.large",
-        "m3.xlarge",
-        "m3.2xlarge"
-      ],
-      "ConstraintDescription": "Must be a valid EC2 HVM instance type.",
-      "Default": "t2.small"
     },
     "SwarmClusterSize": {
       "Type": "Number",
@@ -200,6 +174,7 @@
     },
     "SwarmSubnetAz1": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet1" ] },
@@ -214,7 +189,8 @@
     },
     "SwarmSubnetAz2": {
       "Type": "AWS::EC2::Subnet",
-      "Properties": {
+      "DependsOn" : ["Vpc"],
+	  "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet2" ] },
         "AvailabilityZone": { "Fn::Select": [ "1", { "Ref": "VpcAvailabilityZones" } ] },
@@ -228,6 +204,7 @@
     },
     "SwarmSubnetAz3": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet3" ] },
@@ -243,6 +220,7 @@
     },
     "ProxySubnetAz1": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "proxysubnet1" ] },
@@ -257,6 +235,7 @@
     },
     "ProxySubnetAz2": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "proxysubnet2" ] },
@@ -271,6 +250,7 @@
     },
     "ProxySubnetAz3": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "proxysubnet3" ] },
@@ -282,6 +262,7 @@
     },
     "ProxyELBSubnetAz1": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "proxyelbsubnet1" ] },
@@ -295,6 +276,7 @@
     },
     "ProxyELBSubnetAz2": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "proxyelbsubnet2" ]
@@ -309,6 +291,7 @@
     },
     "ProxyELBSubnetAz3": {
       "Type": "AWS::EC2::Subnet",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "CidrBlock": { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "proxyelbsubnet3" ] },
@@ -323,6 +306,7 @@
     },
     "InternetGateway": {
       "Type": "AWS::EC2::InternetGateway",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "Tags": [
           { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "IGW" ] ] } }
@@ -334,6 +318,7 @@
     },
     "AttachGateway": {
       "Type": "AWS::EC2::VPCGatewayAttachment",
+	  "DependsOn" : "Vpc",
       "Properties": {
         "VpcId": { "Ref": "Vpc" },
         "InternetGatewayId": { "Ref": "InternetGateway" }
@@ -344,6 +329,7 @@
     },
     "RouteViaIgw": {
       "Type": "AWS::EC2::RouteTable",
+	  "DependsOn" : "Vpc",
       "Properties": {
         "VpcId": { "Ref": "Vpc" }
       },
@@ -353,6 +339,7 @@
     },
     "PublicRouteViaIgw": {
       "Type": "AWS::EC2::Route",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "RouteTableId": { "Ref": "RouteViaIgw" },
         "DestinationCidrBlock": "0.0.0.0/0",
@@ -364,6 +351,7 @@
     },
     "PrivateSwarmRouteAz1": {
       "Type": "AWS::EC2::RouteTable",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" }
       },
@@ -373,6 +361,7 @@
     },
     "PrivateSwarmRouteAz2": {
       "Type": "AWS::EC2::RouteTable",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" }
       },
@@ -382,6 +371,7 @@
     },
     "PrivateSwarmRouteAz3": {
       "Type": "AWS::EC2::RouteTable",
+	  "DependsOn" : ["Vpc"],
       "Properties": {
         "VpcId": { "Ref": "Vpc" }
       },
@@ -391,11 +381,11 @@
     },
     "PrivateSwarmRouteEntryViaNATAz1": {
       "Type": "AWS::EC2::Route",
-      "DependsOn" : ["PrivateSwarmRouteAz1", "NATInstanceAz1"],
+      "DependsOn" : ["PrivateSwarmRouteAz1", "NATGatewayAz1"],
       "Properties": {
         "RouteTableId": { "Ref": "PrivateSwarmRouteAz1" },
         "DestinationCidrBlock": "0.0.0.0/0",
-        "InstanceId": { "Ref": "NATInstanceAz1" }
+        "NatGatewayId": { "Ref": "NATGatewayAz1" }
       },
       "Metadata": {
         "AWS::CloudFormation::Designer": { "id": "29572776-22d3-461e-9f5f-b98f4d84bfeb" }
@@ -403,11 +393,11 @@
     },
     "PrivateSwarmRouteEntryViaNATAz2": {
       "Type": "AWS::EC2::Route",
-      "DependsOn" : ["PrivateSwarmRouteAz2", "NATInstanceAz2"],
+      "DependsOn" : ["PrivateSwarmRouteAz2", "NATGatewayAz2"],
       "Properties": {
         "RouteTableId": { "Ref": "PrivateSwarmRouteAz2" },
         "DestinationCidrBlock": "0.0.0.0/0",
-        "InstanceId": { "Ref": "NATInstanceAz2" }
+        "NatGatewayId": { "Ref": "NATGatewayAz2" }
       },
       "Metadata": {
         "AWS::CloudFormation::Designer": { "id": "29572776-22d3-461e-9f5f-b98f4d84bfeb" }
@@ -415,11 +405,11 @@
     },
     "PrivateSwarmRouteEntryViaNATAz3": {
       "Type": "AWS::EC2::Route",
-      "DependsOn" : ["PrivateSwarmRouteAz3", "NATInstanceAz3"],
+      "DependsOn" : ["PrivateSwarmRouteAz3", "NATGatewayAz3"],
       "Properties": {
         "RouteTableId": { "Ref": "PrivateSwarmRouteAz3" },
         "DestinationCidrBlock": "0.0.0.0/0",
-        "InstanceId": { "Ref": "NATInstanceAz3" }
+        "NatGatewayId": { "Ref": "NATGatewayAz3" }
       },
       "Metadata": {
         "AWS::CloudFormation::Designer": { "id": "29572776-22d3-461e-9f5f-b98f4d84bfeb" }
@@ -704,19 +694,19 @@
             "IpProtocol": "tcp",
             "FromPort": "443",
             "ToPort": "443",
-            "CidrIp": { "Fn::Join": [ "", [ { "Fn::GetAtt": [ "NATInstanceAz1", "PublicIp" ] }, "/32"  ] ] }
+            "CidrIp": { "Fn::Join": [ "", [ { "Ref" : "NATGatewayEIP1"}, "/32"  ] ] }
           },
           {
             "IpProtocol": "tcp",
             "FromPort": "443",
             "ToPort": "443",
-            "CidrIp": { "Fn::Join": [ "", [ { "Fn::GetAtt": [ "NATInstanceAz2", "PublicIp" ] }, "/32"  ] ] }
+            "CidrIp": { "Fn::Join": [ "", [ { "Ref" : "NATGatewayEIP2"}, "/32"  ] ] }
           },
           {
             "IpProtocol": "tcp",
             "FromPort": "443",
             "ToPort": "443",
-            "CidrIp": { "Fn::Join": [ "", [ { "Fn::GetAtt": [ "NATInstanceAz3", "PublicIp" ] }, "/32"  ] ] }
+            "CidrIp": { "Fn::Join": [ "", [ { "Ref" : "NATGatewayEIP3"}, "/32"  ] ] }
           }
         ],
         "Tags": [
@@ -758,213 +748,6 @@
         "AWS::CloudFormation::Designer": {
           "id": "bce73384-a823-47b2-ba8c-8037e6ba7e55"
         }
-      }
-    },
-    "NatSecurityGroupAz1" : {
-      "DependsOn" : ["Vpc"],
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "NAT Security Group",
-        "VpcId" : { "Ref" : "Vpc" },
-        "SecurityGroupIngress" : [
-          {
-            "IpProtocol" : "tcp",
-            "FromPort" : "22",
-            "ToPort" : "22",
-            "CidrIp" : { "Ref" : "WhitelistAddress" }
-          },
-          {
-            "IpProtocol" : "tcp",
-            "FromPort" : "3389",
-            "ToPort" : "3389",
-            "CidrIp" : { "Ref" : "WhitelistAddress" }
-          }
-        ],
-        "Tags" : [
-          { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "NATAZ1-SG" ] ] } }
-        ]
-      }
-    },
-    "NatSecurityGroupAz2" : {
-      "DependsOn" : ["Vpc"],
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "NAT Security Group",
-        "VpcId" : { "Ref" : "Vpc" },
-        "SecurityGroupIngress" : [
-          {
-            "IpProtocol" : "tcp",
-            "FromPort" : "22",
-            "ToPort" : "22",
-            "CidrIp" : { "Ref" : "WhitelistAddress" }
-          },
-          {
-            "IpProtocol" : "tcp",
-            "FromPort" : "3389",
-            "ToPort" : "3389",
-            "CidrIp" : { "Ref" : "WhitelistAddress" }
-          }
-        ],
-        "Tags" : [
-          { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "NATAZ2-SG" ] ] } }
-        ]
-      }
-    },
-    "NatSecurityGroupAz3" : {
-      "DependsOn" : ["Vpc"],
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "NAT Security Group",
-        "VpcId" : { "Ref" : "Vpc" },
-        "SecurityGroupIngress" : [
-          {
-            "IpProtocol" : "tcp",
-            "FromPort" : "22",
-            "ToPort" : "22",
-            "CidrIp" : { "Ref" : "WhitelistAddress" }
-          },
-          {
-            "IpProtocol" : "tcp",
-            "FromPort" : "3389",
-            "ToPort" : "3389",
-            "CidrIp" : { "Ref" : "WhitelistAddress" }
-          }
-        ],
-        "Tags" : [
-          { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "NATAZ3-SG" ] ] } }
-        ]
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz1icmp" : {
-      "DependsOn" : ["NatSecurityGroupAz1", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz1" },
-        "IpProtocol": "icmp",
-        "FromPort": "-1",
-        "ToPort": "-1",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet1" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz122" : {
-      "DependsOn" : ["NatSecurityGroupAz1", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz1" },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet1" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz180" : {
-      "DependsOn" : ["NatSecurityGroupAz1", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz1" },
-        "IpProtocol": "tcp",
-        "FromPort": "80",
-        "ToPort": "80",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet1" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz1443" : {
-      "DependsOn" : ["NatSecurityGroupAz1", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz1" },
-        "IpProtocol": "tcp",
-        "FromPort": "443",
-        "ToPort": "443",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet1" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz2icmp" : {
-      "DependsOn" : ["NatSecurityGroupAz2", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz2" },
-        "IpProtocol": "icmp",
-        "FromPort": "-1",
-        "ToPort": "-1",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet2" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz222" : {
-      "DependsOn" : ["NatSecurityGroupAz2", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz2" },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet2" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz280" : {
-      "DependsOn" : ["NatSecurityGroupAz2", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz2" },
-        "IpProtocol": "tcp",
-        "FromPort": "80",
-        "ToPort": "80",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet2" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz2443" : {
-      "DependsOn" : ["NatSecurityGroupAz2", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz2" },
-        "IpProtocol": "tcp",
-        "FromPort": "443",
-        "ToPort": "443",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet2" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz3icmp" : {
-      "DependsOn" : ["NatSecurityGroupAz3", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz3" },
-        "IpProtocol": "icmp",
-        "FromPort": "-1",
-        "ToPort": "-1",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet3" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz322" : {
-      "DependsOn" : ["NatSecurityGroupAz3", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz3" },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet3" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz380" : {
-      "DependsOn" : ["NatSecurityGroupAz3", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz3" },
-        "IpProtocol": "tcp",
-        "FromPort": "80",
-        "ToPort": "80",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet3" ] }
-      }
-    },
-    "NatSecurityGroupIngressSwarmAz3443" : {
-      "DependsOn" : ["NatSecurityGroupAz3", "NodeSwarmSecurityGroup"],
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": { "Ref": "NatSecurityGroupAz3" },
-        "IpProtocol": "tcp",
-        "FromPort": "443",
-        "ToPort": "443",
-        "CidrIp" : { "Fn::FindInMap": [ "VpcCidrs", { "Ref": "AWS::Region" }, "swarmsubnet3" ] }
       }
     },
     "NodeIngress4243": {
@@ -1302,73 +1085,51 @@
         }
       }
     },
-    "NATInstanceAz1" : {
-      "Type" : "AWS::EC2::Instance",
+    "NATGatewayEIP1" : {
+      "Type" : "AWS::EC2::EIP",
+	  "DependsOn" : "Vpc",
       "Properties" : {
-        "InstanceType" : { "Ref": "NATInstanceType" },
-        "KeyName"  : { "Ref" : "KeyName" },
-        "SourceDestCheck" : "false",
-        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "NATAMI" ]},
-        "NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "NatSecurityGroupAz1" }],
-          "AssociatePublicIpAddress" : "true",
-          "DeviceIndex"              : "0",
-          "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "ProxySubnetAz1" }
-        }],
-        "Tags" : [
-          { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "NATAZ1" ] ] } }
-        ],
-        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-        "#!/bin/bash\n",
-        "echo 'NAT Instance is ready'\n"
-        ]]}}
+        "Domain" : "vpc"
       }
     },
-    "NATInstanceAz2" : {
-      "Type" : "AWS::EC2::Instance",
+    "NATGatewayAz1" : {
+      "DependsOn" : "AttachGateway",
+      "Type" : "AWS::EC2::NatGateway",
       "Properties" : {
-        "InstanceType" : { "Ref": "NATInstanceType" },
-        "KeyName"  : { "Ref" : "KeyName" },
-        "SourceDestCheck" : "false",
-        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "NATAMI" ]},
-        "NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "NatSecurityGroupAz2" }],
-          "AssociatePublicIpAddress" : "true",
-          "DeviceIndex"              : "0",
-          "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "ProxySubnetAz2" }
-        }],
-        "Tags" : [
-          { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "NATAZ2" ] ] } }
-        ],
-        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-        "#!/bin/bash\n",
-        "echo 'NAT Instance is ready'\n"
-        ]]}}
+        "AllocationId" : { "Fn::GetAtt" : ["NATGatewayEIP1", "AllocationId"]},
+        "SubnetId" : { "Ref" : "ProxySubnetAz1"}
       }
     },
-    "NATInstanceAz3" : {
-      "Type" : "AWS::EC2::Instance",
+    "NATGatewayEIP2" : {
+      "Type" : "AWS::EC2::EIP",
+	  "DependsOn" : "Vpc",
       "Properties" : {
-        "InstanceType" : { "Ref": "NATInstanceType" },
-        "KeyName"  : { "Ref" : "KeyName" },
-        "SourceDestCheck" : "false",
-        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref": "AWS::Region" }, "NATAMI" ]},
-        "NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "NatSecurityGroupAz3" }],
-          "AssociatePublicIpAddress" : "true",
-          "DeviceIndex"              : "0",
-          "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "ProxySubnetAz3" }
-        }],
-        "Tags" : [
-          { "Key": "Name", "Value": { "Fn::Join": [ "-", [ { "Ref": "AWS::StackName" }, "NATAZ3" ] ] } }
-        ],
-        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-        "#!/bin/bash\n",
-        "echo 'NAT Instance is ready'\n"
-        ]]}}
+        "Domain" : "vpc"
+      }
+    },
+    "NATGatewayAz2" : {
+      "DependsOn" : "AttachGateway",
+
+      "Type" : "AWS::EC2::NatGateway",
+      "Properties" : {
+        "AllocationId" : { "Fn::GetAtt" : ["NATGatewayEIP2", "AllocationId"]},
+        "SubnetId" : { "Ref" : "ProxySubnetAz2"}
+      }
+    },
+    "NATGatewayEIP3" : {
+      "Type" : "AWS::EC2::EIP",
+	  "DependsOn" : "Vpc",
+      "Properties" : {
+        "Domain" : "vpc"
+      }
+    },
+    "NATGatewayAz3" : {
+      "DependsOn" : "AttachGateway",
+
+      "Type" : "AWS::EC2::NatGateway",
+      "Properties" : {
+        "AllocationId" : { "Fn::GetAtt" : ["NATGatewayEIP3", "AllocationId"]},
+        "SubnetId" : { "Ref" : "ProxySubnetAz3"}
       }
     },
     "ProxyElasticLoadBalancer" : {
@@ -1377,12 +1138,12 @@
       "Properties" : {
         "Subnets": [ { "Ref": "ProxyELBSubnetAz1" }, { "Ref": "ProxyELBSubnetAz2" }, { "Ref": "ProxyELBSubnetAz3" }  ],
         "CrossZone" : "true",
-        "Listeners" : [ 
+        "Listeners" : [
             {
               "LoadBalancerPort" : "443",
               "InstancePort" : "80",
               "Protocol" : "HTTPS",
-              "SSLCertificateId": { "Ref": "SSLCertificateARN" }      
+              "SSLCertificateId": { "Ref": "SSLCertificateARN" }
             },
             {
               "LoadBalancerPort" : "22",
@@ -1400,7 +1161,7 @@
 	      "ConnectionSettings" : {
 	        "IdleTimeout" : 600
 	      },
-        "SecurityGroups" : [{ 
+        "SecurityGroups" : [{
            "Fn::GetAtt": [
               "PublicELBSG",
               "GroupId"
@@ -1426,7 +1187,7 @@
           "Interval" : "30",
           "Timeout" : "5"
         },
-        "SecurityGroups" : [{ 
+        "SecurityGroups" : [{
            "Fn::GetAtt": [
               "PrivateELBSG",
               "GroupId"
@@ -1448,15 +1209,23 @@
           ]
         },
         "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/sda1",
-                        "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": 50,
-                            "VolumeType": "gp2"
-                        }
-                    }
-                ],
+            {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 8,
+                    "VolumeType": "gp2"
+                }
+            },
+            {
+                "DeviceName": "/dev/sda2",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 50,
+                    "VolumeType": "gp2"
+                }
+            }
+        ],
         "ImageId": {
           "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "CENTOSAMI" ]
         },
@@ -1487,10 +1256,13 @@
               "gpgcheck=1\n",
               "gpgkey=https://yum.dockerproject.org/gpg\n",
               "EOF\n",
-              "yum -y install docker-engine-1.10.3-1.el7.centos.x86_64\n",
-              "sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 -H tcp:\\\/\\\/0.0.0.0:4243/g' /usr/lib/systemd/system/docker.service\n",
+              "yum -y install etcd-2.2.2-5.el7.x86_64 lvm2 docker-engine-1.10.3-1.el7.centos.x86_64\n",
+              "pvcreate /dev/xvdb\n",
+              "vgcreate vg-docker /dev/xvdb\n",
+              "lvcreate -l 95%VG -n data vg-docker\n",
+              "lvcreate -l 5%VG -n metadata vg-docker\n",
+              "sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 -H tcp:\\\/\\\/0.0.0.0:4243 --storage-driver=devicemapper --storage-opt dm.datadev=\\/dev\\/vg-docker\\/data --storage-opt dm.metadatadev=\\/dev\\/vg-docker\\/metadata/g' /usr/lib/systemd/system/docker.service\n",
               "systemctl daemon-reload && systemctl restart docker\n",
-              "yum -y install etcd-2.2.2-5.el7.x86_64\n",
               "service etcd start\n",
               "echo \"\n",
               "ETCD_NAME=default\n",
@@ -1590,15 +1362,23 @@
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/sda1",
-                        "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": 50,
-                            "VolumeType": "gp2"
-                        }
-                    }
-                ],
+            {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 8,
+                    "VolumeType": "gp2"
+                }
+            },
+            {
+                "DeviceName": "/dev/sda2",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 50,
+                    "VolumeType": "gp2"
+                }
+            }
+        ],
         "ImageId": {
           "Fn::FindInMap": [
             "RegionMap",
@@ -1634,7 +1414,7 @@
               "gpgcheck=1\n",
               "gpgkey=https://yum.dockerproject.org/gpg\n",
               "EOF\n",
-              "yum -y install etcd-2.2.2-5.el7.x86_64\n",
+              "yum -y install etcd-2.2.2-5.el7.x86_64 lvm2 docker-engine-1.10.3-1.el7.centos.x86_64\n",
               "service etcd start\n",
               "echo \"\n",
               "ETCD_NAME=${IP}\n",
@@ -1650,7 +1430,10 @@
               "\\\" \"> /etc/etcd/etcd.conf\n",
               "\n",
               "systemctl daemon-reload && systemctl restart etcd\n",
-              "yum -y install docker-engine-1.10.3-1.el7.centos.x86_64\n",
+              "pvcreate /dev/xvdb\n",
+              "vgcreate vg-docker /dev/xvdb\n",
+              "lvcreate -l 95%VG -n data vg-docker\n",
+              "lvcreate -l 5%VG -n metadata vg-docker\n",
               "sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 -H tcp:\\\/\\\/0.0.0.0:4243 --cluster-store=etcd:\\\/\\\/",
                 {
                 "Fn::GetAtt": [
@@ -1658,7 +1441,7 @@
                   "PrivateIp"
                 ]
               },
-              ":2379 --cluster-advertise=eth0:4243 --label tier=public/g' /usr/lib/systemd/system/docker.service\n",
+              ":2379 --cluster-advertise=eth0:4243 --label tier=public --storage-driver=devicemapper --storage-opt dm.datadev=\\/dev\\/vg-docker\\/data --storage-opt dm.metadatadev=\\/dev\\/vg-docker\\/metadata/g' /usr/lib/systemd/system/docker.service\n",
               "systemctl daemon-reload && systemctl restart docker\n",
               "docker run --restart=\"always\" --name docker-swarm-node -d swarm join --addr=${IP}:4243 etcd://",
               {
@@ -1746,15 +1529,23 @@
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/sda1",
-                        "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": 50,
-                            "VolumeType": "gp2"
-                        }
-                    }
-                ],
+            {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 8,
+                    "VolumeType": "gp2"
+                }
+            },
+            {
+                "DeviceName": "/dev/sda2",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 50,
+                    "VolumeType": "gp2"
+                }
+            }
+        ],
         "ImageId": {
           "Fn::FindInMap": [
             "RegionMap",
@@ -1791,7 +1582,7 @@
               "gpgkey=https://yum.dockerproject.org/gpg\n",
               "EOF\n",
               "yum -y update\n",
-              "yum -y install etcd-2.2.2-5.el7.x86_64\n",
+              "yum -y install etcd-2.2.2-5.el7.x86_64 lvm2 docker-engine-1.10.3-1.el7.centos.x86_64\n",
               "service etcd start\n",
               "echo \"\n",
               "ETCD_NAME=${IP}\n",
@@ -1807,7 +1598,10 @@
               "\\\" \"> /etc/etcd/etcd.conf\n",
               "\n",
               "systemctl daemon-reload && systemctl restart etcd\n",
-              "yum -y install docker-engine-1.10.3-1.el7.centos.x86_64\n",
+              "pvcreate /dev/xvdb\n",
+              "vgcreate vg-docker /dev/xvdb\n",
+              "lvcreate -l 95%VG -n data vg-docker\n",
+              "lvcreate -l 5%VG -n metadata vg-docker\n",
               "sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 -H tcp:\\\/\\\/0.0.0.0:4243 --cluster-store=etcd:\\\/\\\/",
                 {
                 "Fn::GetAtt": [
@@ -1815,7 +1609,7 @@
                   "PrivateIp"
                 ]
               },
-              ":2379 --cluster-advertise=eth0:4243/g' /usr/lib/systemd/system/docker.service\n",
+              ":2379 --cluster-advertise=eth0:4243 --storage-driver=devicemapper --storage-opt dm.datadev=\\/dev\\/vg-docker\\/data --storage-opt dm.metadatadev=\\/dev\\/vg-docker\\/metadata/g' /usr/lib/systemd/system/docker.service\n",
               "systemctl daemon-reload && systemctl restart docker\n",
               "docker run --restart=\"always\" --name docker-swarm-node -d swarm join --addr=${IP}:4243 etcd://",
               {
@@ -1863,15 +1657,23 @@
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/sda1",
-                        "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": 50,
-                            "VolumeType": "gp2"
-                        }
-                    }
-                ],
+            {
+                "DeviceName": "/dev/sda1",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 8,
+                    "VolumeType": "gp2"
+                }
+            },
+            {
+                "DeviceName": "/dev/sda2",
+                "Ebs": {
+                    "DeleteOnTermination": "true",
+                    "VolumeSize": 50,
+                    "VolumeType": "gp2"
+                }
+            }
+        ],
         "ImageId": {
           "Fn::FindInMap": [ "RegionMap", { "Ref": "AWS::Region" }, "CENTOSAMI" ]
         },
@@ -1896,16 +1698,18 @@
               "gpgcheck=1\n",
               "gpgkey=https://yum.dockerproject.org/gpg\n",
               "EOF\n",
-              "yum -y install git\n",
-              "curl -L https://github.com/docker/compose/releases/download/1.6.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose\n",
+              "yum -y install lvm2 git docker-engine-1.10.3-1.el7.centos.x86_64\n",
+              "pvcreate /dev/xvdb\n",
+              "vgcreate vg-docker /dev/xvdb\n",
+              "lvcreate -l 95%VG -n data vg-docker\n",
+              "lvcreate -l 5%VG -n metadata vg-docker\n",
+              "sed -i 's/ExecStart\\(.*\\)$/ExecStart\\1 --storage-driver=devicemapper --storage-opt dm.datadev=\\/dev\\/vg-docker\\/data --storage-opt dm.metadatadev=\\/dev\\/vg-docker\\/metadata/g' /usr/lib/systemd/system/docker.service\n",
+              "curl -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose\n",
               "chmod +x /usr/local/bin/docker-compose\n",
-              "yum -y install docker-engine-1.10.3-1.el7.centos.x86_64\n",
-              "service docker start\n",
-              "docker run --restart=\"always\" -p 80:80 -p 2375:2375 -d -e TARGET=",
+              "systemctl daemon-reload && systemctl restart docker\n",
+              "docker run --restart=\"always\" -p 80:80 -d -e TARGET=",
               { "Fn::GetAtt": [ "ProxyPrivateElasticLoadBalancer", "DNSName" ] },
-              " -e SWARM_MASTER_HOST=",
-              { "Fn::GetAtt": [ "MasterSwarmInstance", "PrivateIp" ] },
-              " -e SWARM_MASTER_PORT=2375 --name=outer-proxy-nginx -d accenture/adop-outer-proxy:0.1.0 \n"
+              " --name=outer-proxy-nginx -d accenture/adop-outer-proxy:0.2.1 \n"
               ]
             ]
           }
