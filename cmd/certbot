@@ -1,0 +1,179 @@
+#!/bin/bash -e
+
+SUB_CMD_NAME="certbot"
+
+cmd_desc() {
+    echo "For running Certbot (Let’s Encrypt) related commands"
+}
+
+cmd_usage() {
+    echo "usage: ${CMD_NAME} ${SUB_CMD_NAME} <subcommand>"
+}
+
+help() {
+    cmd_usage
+    echo
+    echo "Available subcommands are:"
+    printf "    %-22s   %s\n" "gen-certs" "Generate SSL certificates for Nginx SSL support."
+    printf "    %-22s   %s\n" "export-certs" "Export new SSL certificates to ADOP NGINX Proxy container."
+    printf "    %-22s   %s\n" "help" "Prints this help information"
+    echo
+}
+
+gen_help() {
+    echo "usage: ${CMD_NAME} ${SUB_CMD_NAME} gen-certs [<options>]"
+    printf "    %-2s   %s\n" "" "Options:"
+    printf "    %-3s   %s\n" "" "<DOMAIN_NAME>  : This is the domain name which will be secured by Let’s Encrypt SSL. (Required)"
+    printf "    %-3s   %s\n" "" "<SERVICE_NAME> : Service name will be used for copying fullchain.pem and privkey.pem SSL files from auto generated domain name folder to static one: /certs/<SERVICE_NAME>. (Optional)"
+    printf "    %-3s   %s\n" "" "-h             : Prints this help."
+
+    echo
+    echo "Examples of usage:"
+    printf "    %-30s   %s\n ${CMD_NAME} ${SUB_CMD_NAME} gen-certs example.com"
+    printf "    %-30s   %s\n ${CMD_NAME} ${SUB_CMD_NAME} gen-certs registry.example.com registry"
+    printf "    %-30s   %s\n ${CMD_NAME} ${SUB_CMD_NAME} gen-certs selenium.example.com selenium"
+    echo
+}
+
+export_help() {
+    echo "usage: ${CMD_NAME} ${SUB_CMD_NAME} export-certs [<options>]"
+    printf "    %-2s   %s\n" "" "Options:"
+    printf "    %-3s   %s\n" "" "<DOMAIN_NAME>  : This is the domain name for which we will export certificate files. (Required)"
+    printf "    %-3s   %s\n" "" "<SERVICE_NAME> : Service name will be used for specific NGINX virtual host configuration, you have to upload in ADOP NGINX container virtual host configuration file as /etc/nginx/sites-available/<SERVICE_NAME>.conf."
+    printf "    %-3s   %s\n" "" "                 We will also use <SERVICE_NAME> as a prefix for SSL keys for your service, for instance '/etc/nginx/ssl/<SERVICE_NAME>_fullchain.pem' (Optional)"
+    printf "    %-3s   %s\n" "" "-h             : Prints this help."
+
+    echo
+    echo "Examples of usage:"
+    printf "    %-30s   %s\n ${CMD_NAME} ${SUB_CMD_NAME} export-certs example.com"
+    printf "    %-30s   %s\n ${CMD_NAME} ${SUB_CMD_NAME} export-certs registry.example.com registry"
+    printf "    %-30s   %s\n ${CMD_NAME} ${SUB_CMD_NAME} export-certs selenium.example.com selenium"
+    echo
+}
+
+gen_certs() {
+    # Set Parameters Values
+    export DOMAIN_NAME=$1
+    export SERVICE_NAME=$2
+
+    local OPTIND
+
+    while getopts "h" opt; do
+      case $opt in
+        h)
+          gen_help
+          exit 1
+          ;;
+      esac
+    done
+
+    if [ -z ${DOMAIN_NAME} ]; then
+        gen_help
+        exit 1
+    fi
+
+    echo "INFO: SSL certificates will be issued for ${DOMAIN_NAME}."
+
+    export PROXY_CONTAINER_ID=$(docker ps --filter="name=proxy" -q | xargs)
+    export PROXY_CONTAINER_RESTART=false
+    if [ ! -z ${PROXY_CONTAINER_ID} ]; then
+        read -r -p "We found running Proxy (NGINX) container. To issue new SSL certificate we have to stop & start Proxy container, which will be cause of ADOP short outage. Please, confirm restart of Proxy (NGINX) container? [y/n] " response
+        case $response in
+            [yY][eE][sS]|[yY])
+                PROXY_CONTAINER_RESTART=true
+                printf "Stopping Proxy (NGINX) container..."
+                docker stop proxy
+                ;;
+            *)
+                printf "SSL certificate issuing aborted by user."
+                exit 1
+                ;;
+        esac
+    fi
+
+    docker run --rm -i \
+        -p 80:80 \
+        -p 443:443 \
+        -v letsencrypt:/etc/letsencrypt \
+        accenture/certbot:0.0.1 \
+        certonly --standalone -d ${DOMAIN_NAME} --text --register-unsafely-without-email --agree-tos
+
+    if [ -n ${SERVICE_NAME} ]; then
+        export SERVICE_FOLDER="/certs/${SERVICE_NAME}"
+        docker run -i --rm -v letsencrypt:/certs busybox sh -c "mkdir -p ${SERVICE_FOLDER} && cp -RL /certs/live/${DOMAIN_NAME}/fullchain.pem /certs/live/${DOMAIN_NAME}/privkey.pem ${SERVICE_FOLDER}"
+    fi
+
+    if [ ${PROXY_CONTAINER_RESTART} = true ]; then
+        printf "Starting Proxy (NGINX) container..."
+        docker start proxy
+    fi
+}
+
+export_certs() {
+    # Set Parameters Values
+    export DOMAIN_NAME=$1
+    export SERVICE_NAME=$2
+
+    local OPTIND
+
+    while getopts "h" opt; do
+      case $opt in
+        h)
+          export_help
+          exit 1
+          ;;
+      esac
+    done
+
+    if [ -z ${DOMAIN_NAME} ]; then
+        export_help
+        exit 1
+    fi
+
+    export DEST_CHAIN_FILE_NAME=fullchain.pem
+    export DEST_PRIVATE_KEY_FILE_NAME=privkey.pem
+
+    if [ -n ${SERVICE_NAME} ]; then
+        export DEST_CHAIN_FILE_NAME="${SERVICE_NAME}_fullchain.pem"
+        export DEST_PRIVATE_KEY_FILE_NAME="${SERVICE_NAME}_privkey.pem"
+        docker exec proxy ln -sf //etc/nginx/sites-available/${SERVICE_NAME}.conf //etc/nginx/sites-enabled/${SERVICE_NAME}.conf
+    fi
+
+    export CONTAINER_ID=$(docker run -v letsencrypt:/certs busybox //bin/sh -c "mkdir -p //tmp/certs; cp -L //certs/live/${DOMAIN_NAME}/fullchain.pem //tmp/certs/fullchain.pem; cp -L //certs/live/${DOMAIN_NAME}/privkey.pem //tmp/certs/privkey.pem" && docker ps -l -q)
+    if [ -n ${CONTAINER_ID} ]; then
+        docker cp ${CONTAINER_ID}:/tmp/certs/fullchain.pem ${DEST_CHAIN_FILE_NAME}
+        docker cp ${CONTAINER_ID}:/tmp/certs/privkey.pem ${DEST_PRIVATE_KEY_FILE_NAME}
+        docker cp ${DEST_CHAIN_FILE_NAME} proxy:/etc/nginx/ssl/
+        docker cp ${DEST_PRIVATE_KEY_FILE_NAME} proxy:/etc/nginx/ssl/
+
+        rm ${DEST_CHAIN_FILE_NAME} ${DEST_PRIVATE_KEY_FILE_NAME}
+        docker rm -f ${CONTAINER_ID}
+
+        docker exec proxy nginx -s reload
+    fi
+}
+
+shift $(($OPTIND -1))
+SUBCOMMAND_OPT="${1:-help}"
+
+# Only shift if there are other parameters
+if [ $# -ge 1 ]; then
+    shift
+fi
+
+case ${SUBCOMMAND_OPT} in
+    "cmd_desc"|"help")
+        ${SUBCOMMAND_OPT} "$@"
+        ;;
+    "gen-certs")
+        gen_certs "$@"
+        ;;
+    "export-certs")
+        export_certs "$@"
+        ;;
+    *)
+        echo "Invalid parameter(s) or option(s)."
+        help
+        exit 1
+        ;;
+esac
